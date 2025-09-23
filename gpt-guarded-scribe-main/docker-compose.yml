@@ -1,0 +1,128 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 데이터베이스
+  postgres:
+    image: postgres:15
+    container_name: plagiarism_postgres
+    environment:
+      POSTGRES_DB: plagiarism_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - plagiarism_network
+
+  # Redis (캐싱 및 작업 큐)
+  redis:
+    image: redis:7-alpine
+    container_name: plagiarism_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - plagiarism_network
+
+  # FastAPI 백엔드
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: plagiarism_backend
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/plagiarism_db
+      - REDIS_URL=redis://redis:6379
+      - DEBUG=true
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+    networks:
+      - plagiarism_network
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Celery Worker (백그라운드 작업)
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: plagiarism_celery_worker
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/plagiarism_db
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+    networks:
+      - plagiarism_network
+    command: celery -A celery_app worker --loglevel=info
+
+  # Celery Beat (스케줄러)
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: plagiarism_celery_beat
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/plagiarism_db
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+    networks:
+      - plagiarism_network
+    command: celery -A celery_app beat --loglevel=info
+
+  # Flower (Celery 모니터링)
+  flower:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: plagiarism_flower
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+    networks:
+      - plagiarism_network
+    command: celery -A celery_app flower --port=5555
+
+  # Nginx (리버스 프록시)
+  nginx:
+    image: nginx:alpine
+    container_name: plagiarism_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - backend
+    networks:
+      - plagiarism_network
+
+networks:
+  plagiarism_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
