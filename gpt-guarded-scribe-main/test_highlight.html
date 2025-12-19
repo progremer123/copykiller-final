@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 CopyKiller - 완전체 기능 테스트</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .panel {
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: vertical;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result-text {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            min-height: 200px;
+            margin-top: 15px;
+            line-height: 1.8;
+        }
+        .highlight-old {
+            background-color: #ffeb3b;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .highlight-new {
+            background-color: #ffebee;
+            border-left: 3px solid #f44336;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+            color: #c62828;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .status.checking {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #2196f3;
+        }
+        .status.success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+        .status.error {
+            background: #ffebee;
+            color: #d32f2f;
+            border: 1px solid #f44336;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .matches-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .premium-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: white;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-success { background: #e8f5e8; color: #2e7d32; }
+        .badge-warning { background: #fff3e0; color: #f57c00; }
+        .badge-danger { background: #ffebee; color: #d32f2f; }
+        .badge-info { background: #e3f2fd; color: #1976d2; }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        .tabs {
+            border-bottom: 2px solid #eee;
+            margin-bottom: 20px;
+        }
+        .tab {
+            display: inline-block;
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .ai-suggestion {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #ff6b6b;
+        }
+        .improvement-section {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 CopyKiller - 완전체 기능 데모</h1>
+    <p class="subtitle">AI 기반 차세대 표절 검사 시스템의 모든 기능을 한눈에!</p>
+
+    <div class="premium-card">
+        <h2 style="margin-top: 0;">✨ 프리미엄 AI 기능 포함</h2>
+        <p>• 🎯 정확한 하이라이트 • 🤖 AI 글쓰기 분석 • 💡 스마트 개선 제안 • 🔍 맥락 기반 분석</p>
+    </div>
+
+    <div class="info">
+        <strong>📡 백엔드 상태:</strong> <span id="backend-status">확인 중...</span><br>
+        <strong>🔧 개선사항:</strong> 전체 문장 → 정확한 매칭 구간만 하이라이트
+    </div>
+
+    <div class="input-section">
+        <textarea id="testText" placeholder="표절 검사할 텍스트를 입력하세요...">인공지능은 현대 기술 발전의 핵심 요소입니다. 머신러닝과 딥러닝을 통해 컴퓨터가 학습하고 판단할 수 있게 되었습니다. 자연어 처리와 컴퓨터 비전 같은 분야에서 혁신적인 성과를 보이고 있습니다. 이러한 기술들이 결합되어 인간의 인지 능력을 모방하고 때로는 능가하는 시스템을 만들어내고 있습니다.</textarea>
+        <br>
+        <div style="margin-top: 15px;">
+            <button onclick="runFullAnalysis()">🚀 전체 AI 분석 (모든 기능)</button>
+            <button onclick="checkBasicPlagiarism()" style="margin-left: 10px; background: #007bff;">🔍 기본 표절 검사</button>
+            <button onclick="showAllFeatures()" style="margin-left: 10px; background: #28a745;">� 기능 미리보기</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="panel">
+            <h2>❌ 기존 방식 (문제)</h2>
+            <div class="result-text" id="oldResult">
+                <p>전체 문장이 하이라이트되는 문제:</p>
+                <p><span class="highlight-old">인공지능은 현대 기술 발전의 핵심 요소입니다.</span> <span class="highlight-old">머신러닝과 딥러닝을 통해 컴퓨터가 학습하고 판단할 수 있게 되었습니다.</span></p>
+                <p>→ 부정확하고 과도한 하이라이트</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>✅ 개선된 방식 (해결)</h2>
+            <div class="result-text" id="newResult">
+                <p>정확한 매칭 구간만 하이라이트:</p>
+                <p>인공지능은 <span class="highlight-new">현대 기술 발전</span>의 핵심 요소입니다. <span class="highlight-new">머신러닝과 딥러닝</span>을 통해 컴퓨터가 학습하고 판단할 수 있게 되었습니다.</p>
+                <p>→ 정확하고 명확한 표절 구간 표시</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 탭 네비게이션 -->
+    <div class="tabs" id="mainTabs">
+        <button class="tab active" onclick="showTab('basic')">🔍 기본 검사</button>
+        <button class="tab" onclick="showTab('ai-analysis')">🤖 AI 분석</button>
+        <button class="tab" onclick="showTab('context')">🎯 맥락 분석</button>
+        <button class="tab" onclick="showTab('suggestions')">💡 개선 제안</button>
+        <button class="tab" onclick="showTab('premium')">✨ 프리미엄</button>
+    </div>
+
+    <!-- 기본 표절 검사 -->
+    <div id="basic" class="tab-content active">
+        <div id="basicResult"></div>
+    </div>
+
+    <!-- AI 글쓰기 분석 -->
+    <div id="ai-analysis" class="tab-content">
+        <div id="aiAnalysisResult"></div>
+    </div>
+
+    <!-- 맥락 분석 -->
+    <div id="context" class="tab-content">
+        <div id="contextResult"></div>
+    </div>
+
+    <!-- 개선 제안 -->
+    <div id="suggestions" class="tab-content">
+        <div id="suggestionsResult"></div>
+    </div>
+
+    <!-- 프리미엄 기능 -->
+    <div id="premium" class="tab-content">
+        <div id="premiumResult"></div>
+    </div>
+
+    <div id="apiResult" style="margin-top: 30px;"></div>
+
+    <script>
+        let currentAnalysisData = {
+            basicResult: null,
+            aiAnalysis: null,
+            contextAnalysis: null,
+            suggestions: null
+        };
+
+        // 탭 전환 함수
+        function showTab(tabName) {
+            // 모든 탭 비활성화
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // 선택된 탭 활성화
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // 전체 AI 분석 실행
+        async function runFullAnalysis() {
+            const text = document.getElementById('testText').value;
+            
+            // 모든 탭에 로딩 상태 표시
+            showLoadingState();
+            
+            try {
+                // 1. 기본 표절 검사
+                await runBasicPlagiarismCheck(text);
+                
+                // 2. AI 글쓰기 분석
+                await runAIAnalysis(text);
+                
+                // 3. 맥락 분석 (표절 결과가 있을 때)
+                if (currentAnalysisData.basicResult && currentAnalysisData.basicResult.matches) {
+                    await runContextAnalysis(text, currentAnalysisData.basicResult.matches);
+                }
+                
+                // 4. 개선 제안
+                if (currentAnalysisData.basicResult && currentAnalysisData.basicResult.matches) {
+                    await runImprovementSuggestions(text, currentAnalysisData.basicResult.matches);
+                }
+                
+                // 5. 프리미엄 기능 요약
+                displayPremiumSummary();
+                
+            } catch (error) {
+                displayError('전체 분석 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        // 로딩 상태 표시
+        function showLoadingState() {
+            const tabs = ['basic', 'ai-analysis', 'context', 'suggestions', 'premium'];
+            tabs.forEach(tab => {
+                document.getElementById(tab).innerHTML = `
+                    <div class="status checking">
+                        <div class="loading-spinner"></div>
+                        AI 분석 중... 잠시만 기다려주세요
+                    </div>
+                `;
+            });
+        }
+
+        // 백엔드 상태 확인
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch('http://localhost:8006/health');
+                if (response.ok) {
+                    document.getElementById('backend-status').innerHTML = '✅ 정상 작동 (포트 8006)';
+                    document.getElementById('backend-status').style.color = '#2e7d32';
+                } else {
+                    throw new Error('연결 실패');
+                }
+            } catch (error) {
+                document.getElementById('backend-status').innerHTML = '❌ 연결 안됨 (모의 데이터로 테스트 가능)';
+                document.getElementById('backend-status').style.color = '#d32f2f';
+            }
+        }
+
+        // 기본 표절 검사
+        async function runBasicPlagiarismCheck(text) {
+            try {
+                const response = await fetch('http://localhost:8006/api/check/text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text, check_web: true })
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                currentAnalysisData.basicResult = data;
+                displayBasicResults(data, text);
+                return data;
+                
+            } catch (error) {
+                displayMockBasicResults(text);
+                return null;
+            }
+        }
+
+        // AI 글쓰기 분석
+        async function runAIAnalysis(text) {
+            try {
+                const response = await fetch('http://localhost:8006/api/premium/advanced-analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                currentAnalysisData.aiAnalysis = data.analysis;
+                displayAIAnalysisResults(data.analysis);
+                return data;
+                
+            } catch (error) {
+                displayMockAIAnalysis(text);
+                return null;
+            }
+        }
+
+        // 맥락 분석
+        async function runContextAnalysis(text, matches) {
+            try {
+                const response = await fetch('http://localhost:8006/api/premium/context-analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text, matches: matches })
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                currentAnalysisData.contextAnalysis = data.context_analysis;
+                displayContextAnalysisResults(data.context_analysis);
+                return data;
+                
+            } catch (error) {
+                displayMockContextAnalysis();
+                return null;
+            }
+        }
+
+        // 개선 제안
+        async function runImprovementSuggestions(text, matches) {
+            try {
+                const response = await fetch('http://localhost:8006/api/premium/improvement-suggestions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text, matches: matches })
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                currentAnalysisData.suggestions = data.suggestions;
+                displayImprovementSuggestions(data.suggestions);
+                return data;
+                
+            } catch (error) {
+                displayMockImprovementSuggestions();
+                return null;
+            }
+        }
+
+        // 실제 백엔드 API 호출 (구 버전)
+        async function checkBasicPlagiarism() {
+            const text = document.getElementById('testText').value;
+            const resultDiv = document.getElementById('apiResult');
+            
+            resultDiv.innerHTML = `
+                <div class="panel">
+                    <h2>🔥 실시간 API 결과</h2>
+                    <div class="status checking">📡 백엔드에서 표절 검사 중...</div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('http://localhost:8006/api/check/text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        text: text,
+                        check_web: true
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayApiResults(data, text);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="panel">
+                        <h2>🔥 API 결과</h2>
+                        <div class="status error">❌ API 연결 실패: ${error.message}</div>
+                        <p>백엔드 서버가 실행 중인지 확인하세요 (http://localhost:8006)</p>
+                    </div>
+                `;
+            }
+        }
+
+        // API 결과 표시
+        function displayApiResults(data, originalText) {
+            const resultDiv = document.getElementById('apiResult');
+            
+            // 하이라이트된 텍스트 생성
+            let highlightedText = originalText;
+            if (data.matches && data.matches.length > 0) {
+                // 매치를 시작 위치 기준으로 정렬
+                const sortedMatches = [...data.matches].sort((a, b) => a.start_index - b.start_index);
+                
+                // 뒤에서부터 하이라이트 적용 (인덱스 보존)
+                for (let i = sortedMatches.length - 1; i >= 0; i--) {
+                    const match = sortedMatches[i];
+                    const before = highlightedText.substring(0, match.start_index);
+                    const highlighted = highlightedText.substring(match.start_index, match.end_index);
+                    const after = highlightedText.substring(match.end_index);
+                    
+                    highlightedText = before + 
+                        `<span class="highlight-new" title="표절 의심: ${match.similarity_score.toFixed(1)}% 유사">${highlighted}</span>` + 
+                        after;
+                }
+            }
+
+            resultDiv.innerHTML = `
+                <div class="panel">
+                    <h2>🔥 실시간 API 결과</h2>
+                    <div class="status success">✅ 검사 완료!</div>
+                    
+                    <div class="matches-info">
+                        <strong>📊 검사 결과:</strong><br>
+                        • 전체 유사도: ${data.similarity_score?.toFixed(1) || 0}%<br>
+                        • 발견된 매칭: ${data.matches?.length || 0}개<br>
+                        • 검사 ID: ${data.id}<br>
+                        • 상태: ${data.status}
+                    </div>
+
+                    <div class="result-text">
+                        <strong>🎯 개선된 하이라이트 결과:</strong><br><br>
+                        ${highlightedText || originalText}
+                    </div>
+
+                    ${data.matches && data.matches.length > 0 ? `
+                        <div class="matches-info">
+                            <strong>📝 매칭 상세정보:</strong><br>
+                            ${data.matches.map((match, i) => `
+                                ${i + 1}. "${match.matched_text}" (${match.similarity_score.toFixed(1)}% 유사)<br>
+                                   출처: ${match.source_title}<br>
+                                   위치: ${match.start_index}-${match.end_index}
+                            `).join('<br>')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // 기본 결과 표시
+        function displayBasicResults(data, originalText) {
+            let highlightedText = originalText;
+            if (data.matches && data.matches.length > 0) {
+                const sortedMatches = [...data.matches].sort((a, b) => a.start_index - b.start_index);
+                
+                for (let i = sortedMatches.length - 1; i >= 0; i--) {
+                    const match = sortedMatches[i];
+                    const before = highlightedText.substring(0, match.start_index);
+                    const highlighted = highlightedText.substring(match.start_index, match.end_index);
+                    const after = highlightedText.substring(match.end_index);
+                    
+                    highlightedText = before + 
+                        `<span class="highlight-new" title="표절 의심: ${match.similarity_score?.toFixed(1) || 0}% 유사">${highlighted}</span>` + 
+                        after;
+                }
+            }
+
+            document.getElementById('basic').innerHTML = `
+                <div class="panel">
+                    <h2>🔍 기본 표절 검사 결과</h2>
+                    <div class="status success">✅ 검사 완료!</div>
+                    
+                    <div class="matches-info">
+                        <strong>📊 검사 결과:</strong><br>
+                        • 전체 유사도: ${data.similarity_score?.toFixed(1) || 0}%<br>
+                        • 발견된 매칭: ${data.matches?.length || 0}개<br>
+                        • 검사 ID: ${data.id}<br>
+                        • 상태: ${data.status}
+                    </div>
+
+                    <div class="result-text">
+                        <strong>🎯 정확한 하이라이트 결과:</strong><br><br>
+                        ${highlightedText}
+                    </div>
+
+                    ${data.matches && data.matches.length > 0 ? `
+                        <div class="matches-info">
+                            <strong>📝 매칭 상세정보:</strong><br>
+                            ${data.matches.map((match, i) => `
+                                ${i + 1}. "${match.matched_text}" (${match.similarity_score?.toFixed(1) || 0}% 유사)<br>
+                                   출처: ${match.source_title}<br>
+                                   위치: ${match.start_index}-${match.end_index}
+                            `).join('<br>')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // AI 분석 결과 표시
+        function displayAIAnalysisResults(analysis) {
+            document.getElementById('ai-analysis').innerHTML = `
+                <div class="panel">
+                    <h2>🤖 AI 글쓰기 분석</h2>
+                    
+                    <div class="feature-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="feature-card">
+                            <h3>📊 글쓰기 통계</h3>
+                            <p><strong>문장 수:</strong> ${analysis.sentence_count || 'N/A'}</p>
+                            <p><strong>단어 수:</strong> ${analysis.word_count || 'N/A'}</p>
+                            <p><strong>평균 문장 길이:</strong> ${analysis.avg_sentence_length || 'N/A'}</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h3>🎯 문체 분석</h3>
+                            <p><strong>감지된 스타일:</strong> 
+                                <span class="badge badge-info">${analysis.detected_style || '분석중'}</span>
+                            </p>
+                            <p><strong>어조:</strong> 
+                                <span class="badge badge-success">${analysis.tone || '중성적'}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3>📚 점수 분석</h3>
+                        <div style="margin: 10px 0;">
+                            <p><strong>학술성 점수:</strong> ${analysis.academic_score || 5}/10</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${(analysis.academic_score || 5) * 10}%; background: #2196f3;"></div>
+                            </div>
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <p><strong>복잡도 점수:</strong> ${analysis.complexity_score || 6}/10</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${(analysis.complexity_score || 6) * 10}%; background: #ff9800;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${analysis.improvement_areas ? `
+                        <div class="improvement-section">
+                            <h3>🎯 개선 가능 영역</h3>
+                            <p>${analysis.improvement_areas.join(', ')}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // 맥락 분석 결과 표시
+        function displayContextAnalysisResults(context) {
+            const getRiskColor = (risk) => {
+                if (risk.includes('높음')) return 'danger';
+                if (risk.includes('보통')) return 'warning';
+                return 'success';
+            };
+
+            document.getElementById('context').innerHTML = `
+                <div class="panel">
+                    <h2>🎯 표절 맥락 분석</h2>
+                    
+                    <div class="feature-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="feature-card">
+                            <h3>⚠️ 위험도 평가</h3>
+                            <span class="badge badge-${getRiskColor(context.위험도 || '낮음')}">${context.위험도 || '낮음'}</span>
+                            
+                            <h3 style="margin-top: 15px;">🔍 표절 유형</h3>
+                            <p>${context.표절_유형 || '부분적 유사성'}</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h3>📊 심각도</h3>
+                            <span class="badge badge-${getRiskColor(context.심각도 || '낮음')}">${context.심각도 || '낮음'}</span>
+                            
+                            <h3 style="margin-top: 15px;">⚖️ 법적 위험도</h3>
+                            <span class="badge badge-${getRiskColor(context.법적_위험도 || '낮음')}">${context.법적_위험도 || '낮음'}</span>
+                        </div>
+                    </div>
+
+                    <div class="improvement-section">
+                        <h3>💡 맥락 기반 개선 제안</h3>
+                        <ul>
+                            ${(context.개선_제안 || ['독창적인 내용입니다.']).map(suggestion => 
+                                `<li>${suggestion}</li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 개선 제안 결과 표시
+        function displayImprovementSuggestions(suggestions) {
+            document.getElementById('suggestions').innerHTML = `
+                <div class="panel">
+                    <h2>💡 AI 기반 개선 제안</h2>
+                    
+                    ${suggestions.synonym_suggestions ? `
+                        <div class="ai-suggestion">
+                            <h3>🔄 동의어 제안</h3>
+                            ${suggestions.synonym_suggestions.map(suggestion => `
+                                <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+                                    <strong>"${suggestion.original}"</strong> → 
+                                    <em>"${suggestion.alternatives.join(', ')}"</em>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    ${suggestions.restructuring_suggestions ? `
+                        <div class="ai-suggestion">
+                            <h3>📝 문장 재구성 제안</h3>
+                            ${suggestions.restructuring_suggestions.map(suggestion => `
+                                <div style="margin: 10px 0; padding: 15px; background: white; border-radius: 5px;">
+                                    <div><strong>원문:</strong> ${suggestion.original}</div>
+                                    <div style="margin-top: 8px;"><strong>개선안:</strong> ${suggestion.improved}</div>
+                                    <div style="margin-top: 8px; color: #666;"><strong>이유:</strong> ${suggestion.reason}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    ${suggestions.citation_guide ? `
+                        <div class="improvement-section">
+                            <h3>📚 인용 가이드</h3>
+                            <ul>
+                                ${suggestions.citation_guide.map(guide => `<li>${guide}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // 프리미엄 요약 표시
+        function displayPremiumSummary() {
+            document.getElementById('premium').innerHTML = `
+                <div class="premium-card">
+                    <h2>✨ AI 기반 프리미엄 분석 완료!</h2>
+                    <p>모든 고급 기능이 성공적으로 실행되었습니다.</p>
+                </div>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>🎯 핵심 특징</h3>
+                        <ul>
+                            <li>✅ 정확한 하이라이트 (단어/구문 단위)</li>
+                            <li>🤖 AI 기반 글쓰기 스타일 분석</li>
+                            <li>🔍 맥락적 표절 위험도 평가</li>
+                            <li>💡 실시간 개선 제안</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>🚀 차별화 포인트</h3>
+                        <ul>
+                            <li>🎯 기존: 전체 문장 → 우리: 정확한 구간</li>
+                            <li>📊 단순 유사도 → 맥락 기반 분석</li>
+                            <li>❌ 사후 검사 → ✅ 실시간 도움</li>
+                            <li>🤖 AI가 직접 개선안 제시</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>📈 기술 스택</h3>
+                        <ul>
+                            <li>🐍 FastAPI + SQLite (백엔드)</li>
+                            <li>⚛️ React + TypeScript (프론트엔드)</li>
+                            <li>🤖 자체 개발 AI 분석 엔진</li>
+                            <li>🌐 실시간 웹 크롤링</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 모든 기능 미리보기
+        function showAllFeatures() {
+            const text = document.getElementById('testText').value;
+            
+            displayMockBasicResults(text);
+            displayMockAIAnalysis(text);
+            displayMockContextAnalysis();
+            displayMockImprovementSuggestions();
+            displayPremiumSummary();
+        }
+
+        // 모의 결과들
+        function displayMockBasicResults(text) {
+            const mockData = {
+                id: "demo-" + Date.now(),
+                status: "completed", 
+                similarity_score: 42.8,
+                matches: [
+                    {
+                        matched_text: "현대 기술 발전",
+                        source_title: "인공지능 - 위키백과",
+                        similarity_score: 89.2,
+                        start_index: text.indexOf("현대 기술 발전"),
+                        end_index: text.indexOf("현대 기술 발전") + "현대 기술 발전".length
+                    },
+                    {
+                        matched_text: "머신러닝과 딥러닝",
+                        source_title: "인공지능 - 나무위키",
+                        similarity_score: 94.5,
+                        start_index: text.indexOf("머신러닝과 딥러닝"),
+                        end_index: text.indexOf("머신러닝과 딥러닝") + "머신러닝과 딥러닝".length
+                    },
+                    {
+                        matched_text: "자연어 처리",
+                        source_title: "AI 기술 블로그",
+                        similarity_score: 76.3,
+                        start_index: text.indexOf("자연어 처리"),
+                        end_index: text.indexOf("자연어 처리") + "자연어 처리".length
+                    }
+                ]
+            };
+            displayBasicResults(mockData, text);
+        }
+
+        function displayMockAIAnalysis(text) {
+            const mockAnalysis = {
+                sentence_count: 4,
+                word_count: 65,
+                avg_sentence_length: 16.3,
+                detected_style: "학술적/기술적",
+                tone: "중립적-전문적", 
+                academic_score: 8,
+                complexity_score: 7,
+                improvement_areas: ["문장 다양성", "구체적 사례 추가"]
+            };
+            displayAIAnalysisResults(mockAnalysis);
+        }
+
+        function displayMockContextAnalysis() {
+            const mockContext = {
+                위험도: "보통 (주의 필요)",
+                표절_유형: "부분적 개념 차용",
+                심각도: "중간 (일부 수정 권장)",
+                법적_위험도: "낮음 (학술 인용 범위)",
+                개선_제안: [
+                    "🟡 일부 구간에서 유사성이 감지되었습니다",
+                    "💡 핵심 개념은 유지하되 표현을 다양화하세요",
+                    "📚 출처를 명확히 하여 인용으로 처리하는 것을 권장합니다",
+                    "✏️ 동의어나 유의어를 활용해 문장을 재구성해보세요"
+                ]
+            };
+            displayContextAnalysisResults(mockContext);
+        }
+
+        function displayMockImprovementSuggestions() {
+            const mockSuggestions = {
+                synonym_suggestions: [
+                    {
+                        original: "현대 기술 발전",
+                        alternatives: ["최신 기술 진보", "첨단 기술 혁신", "신기술 발달"]
+                    },
+                    {
+                        original: "머신러닝과 딥러닝", 
+                        alternatives: ["기계학습과 심층학습", "ML과 DL", "인공지능 학습 기법"]
+                    }
+                ],
+                restructuring_suggestions: [
+                    {
+                        original: "인공지능은 현대 기술 발전의 핵심 요소입니다.",
+                        improved: "AI 기술은 오늘날 혁신의 중심축 역할을 담당하고 있습니다.",
+                        reason: "더 구체적이고 독창적인 표현으로 개선"
+                    },
+                    {
+                        original: "머신러닝과 딥러닝을 통해 컴퓨터가 학습하고 판단할 수 있게 되었습니다.",
+                        improved: "기계학습 알고리즘의 발전으로 컴퓨터 시스템이 자율적 의사결정 능력을 갖게 되었습니다.",
+                        reason: "기술적 정확성을 높이고 표현을 세련되게 개선"
+                    }
+                ],
+                citation_guide: [
+                    "📚 인용이 필요한 구간에는 적절한 출처 표기를 추가하세요",
+                    "💡 통계나 연구 결과는 반드시 원본 출처를 명시하세요",
+                    "✅ 개인적 의견과 인용 내용을 명확히 구분하세요"
+                ]
+            };
+            displayImprovementSuggestions(mockSuggestions);
+        }
+
+        function displayError(message) {
+            document.getElementById('apiResult').innerHTML = `
+                <div class="panel">
+                    <div class="status error">❌ ${message}</div>
+                </div>
+            `;
+        }
+
+        // 모의 결과 표시 (구버전 호환)
+        function showMockResults() {
+            const text = document.getElementById('testText').value;
+            const mockData = {
+                id: "mock-test-" + Date.now(),
+                status: "completed",
+                similarity_score: 45.2,
+                matches: [
+                    {
+                        matched_text: "현대 기술 발전",
+                        source_title: "인공지능 - 위키백과",
+                        similarity_score: 87.5,
+                        start_index: text.indexOf("현대 기술 발전"),
+                        end_index: text.indexOf("현대 기술 발전") + "현대 기술 발전".length
+                    },
+                    {
+                        matched_text: "머신러닝과 딥러닝",
+                        source_title: "인공지능 - 나무위키", 
+                        similarity_score: 92.3,
+                        start_index: text.indexOf("머신러닝과 딥러닝"),
+                        end_index: text.indexOf("머신러닝과 딥러닝") + "머신러닝과 딥러닝".length
+                    }
+                ]
+            };
+            
+            displayApiResults(mockData, text);
+        }
+
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            checkBackendStatus();
+            showAllFeatures(); // 모든 기능 미리보기
+        };
+    </script>
+</body>
+</html>

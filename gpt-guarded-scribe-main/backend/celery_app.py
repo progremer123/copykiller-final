@@ -6,7 +6,7 @@ celery_app = Celery(
     "plagiarism_checker",
     broker=settings.CELERY_BROKER_URL,
     backend=settings.CELERY_RESULT_BACKEND,
-    include=['tasks.plagiarism_tasks']
+    include=['tasks.plagiarism_tasks', 'tasks.maintenance_tasks']
 )
 
 # Celery 설정

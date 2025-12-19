@@ -5,7 +5,6 @@ import uvicorn
 from contextlib import asynccontextmanager
 
 from database import get_db, create_tables
-from routers import plagiarism
 from config import settings
 
 @asynccontextmanager
@@ -32,7 +31,14 @@ app.add_middleware(
 )
 
 # 라우터 등록
-app.include_router(plagiarism.router, prefix="/api/v1", tags=["plagiarism"])
+from routers import plagiarism
+from routers import advanced_features
+from routers import auth
+
+# 라우터 추가
+app.include_router(plagiarism.router, prefix="/api", tags=["plagiarism"])
+app.include_router(advanced_features.router, prefix="/api/premium", tags=["premium"])
+app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 
 @app.get("/")
 async def root():
@@ -43,4 +49,5 @@ async def health_check():
     return {"status": "healthy"}
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    print("[*] FastAPI 서버 시작 중...")
+    uvicorn.run(app, host="127.0.0.1", port=8006)

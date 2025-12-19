@@ -4,7 +4,7 @@
 INSERT INTO document_sources (title, content, source_type, url, language) VALUES
 ('인공지능과 학술 연구의 미래', 
  '인공지능 기술의 발전은 학술 연구 방법론에 혁신적인 변화를 가져오고 있다. 머신러닝과 딥러닝 알고리즘을 활용한 데이터 분석은 기존의 연구 패러다임을 크게 변화시키고 있으며, 연구자들은 이제 대용량 데이터를 효율적으로 처리하고 분석할 수 있게 되었다. 특히 자연어 처리 기술의 발전으로 텍스트 마이닝과 문헌 분석이 자동화되면서, 연구의 속도와 정확성이 크게 향상되었다.',
- 'academic', 
+ 'academic',
  'https://example-academic.com/ai-research',
  'ko'),
 

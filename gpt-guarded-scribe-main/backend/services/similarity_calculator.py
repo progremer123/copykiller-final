@@ -1,6 +1,3 @@
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 from typing import List, Dict, Tuple
 import hashlib
 import math
@@ -8,33 +5,30 @@ from collections import Counter
 
 class SimilarityCalculator:
     def __init__(self):
-        self.tfidf_vectorizer = TfidfVectorizer(
-            max_features=10000,
-            ngram_range=(1, 3),
-            stop_words=None,  # 우리가 직접 처리
-            lowercase=True
-        )
-        
-    def vectorize_text(self, text: str) -> np.ndarray:
-        """텍스트를 벡터로 변환"""
-        try:
-            # TF-IDF 벡터화
-            tfidf_matrix = self.tfidf_vectorizer.fit_transform([text])
-            return tfidf_matrix.toarray()[0]
-        except:
-            # 빈 텍스트 처리
-            return np.zeros(1000)
+        pass
+    
+    def _get_ngrams(self, text: str, n: int = 2) -> set:
+        """n-gram 추출"""
+        words = text.lower().split()
+        return set(' '.join(words[i:i+n]) for i in range(len(words)-n+1) if i+n <= len(words))
     
     def calculate_similarity(self, text1: str, text2: str) -> float:
-        """두 텍스트 간의 유사도 계산"""
+        """두 텍스트 간의 유사도 계산 (간단한 n-gram 기반)"""
         try:
-            # TF-IDF 벡터화
-            tfidf_matrix = self.tfidf_vectorizer.fit_transform([text1, text2])
+            # 2-gram 추출
+            ngrams1 = self._get_ngrams(text1, 2)
+            ngrams2 = self._get_ngrams(text2, 2)
             
-            # 코사인 유사도 계산
-            similarity_matrix = cosine_similarity(tfidf_matrix)
+            if not ngrams1 and not ngrams2:
+                return 1.0
             
-            return float(similarity_matrix[0][1])
+            intersection = len(ngrams1.intersection(ngrams2))
+            union = len(ngrams1.union(ngrams2))
+            
+            if union == 0:
+                return 0.0
+            
+            return intersection / union
         except:
             return 0.0
     

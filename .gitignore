@@ -1,0 +1,43 @@
+# Node
+node_modules/
+dist/
+.vite/
+*.log
+
+# Frontend build artifacts
+copykiller/dist/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+.env
+backend/.env
+plagiarism.db
+celerybeat-schedule
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker volumes and runtime data
+postgres_data/
+redis_data/
+
+# Nginx SSL (external certs mounted at runtime)
+nginx/ssl/*
+
+# Coverage, test outputs
+coverage/
+pytest_cache/
+
+# Misc
+*.bak
+*.swp

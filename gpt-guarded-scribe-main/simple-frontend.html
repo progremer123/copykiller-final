@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CopyKiller - 표절 검사 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .status {
+            background: #f0f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .status.success {
+            background: #f0fdf4;
+            border-left-color: #22c55e;
+        }
+        
+        .status.error {
+            background: #fef2f2;
+            border-left-color: #ef4444;
+        }
+        
+        .status-text {
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 150px;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .button:active {
+            transform: translateY(0);
+        }
+        
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        
+        .match {
+            background: #faf5f0;
+            border-left: 4px solid #f97316;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        
+        .match-source {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .match-similarity {
+            display: inline-block;
+            background: #fed7aa;
+            color: #92400e;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .match-text {
+            color: #666;
+            font-size: 13px;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-box {
+            background: #f0f9ff;
+            border: 1px solid #bfdbfe;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #1e40af;
+            margin-top: 20px;
+        }
+        
+        .links {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .link-button {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 13px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.2s ease;
+        }
+        
+        .link-button:hover {
+            background: #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 CopyKiller</h1>
+        <p class="subtitle">AI 기반 표절 검사 및 분석 시스템</p>
+        
+        <div class="status" id="status">
+            <p class="status-text">✅ 백엔드 서버 정상 작동</p>
+        </div>
+        
+        <div class="form-group">
+            <label for="textInput">분석할 텍스트</label>
+            <textarea 
+                id="textInput" 
+                placeholder="표절 검사를 원하는 텍스트를 입력하세요..."
+            ></textarea>
+        </div>
+        
+        <button class="button" id="checkBtn" onclick="checkPlagiarism()">
+            🔍 표절 검사 시작
+        </button>
+        
+        <div id="results"></div>
+        
+        <div class="info-box">
+            <strong>💡 팁:</strong> 최소 10자 이상의 텍스트를 입력하면 백엔드에서 자동으로 표절 검사를 수행합니다. 
+            현재 데이터베이스에는 테스트 문서들이 저장되어 있습니다.
+        </div>
+        
+        <div class="links">
+            <a href="http://localhost:8006/docs" class="link-button" target="_blank">📚 API 문서</a>
+            <a href="http://localhost:8006/api/database/stats" class="link-button" target="_blank">📊 DB 통계</a>
+        </div>
+    </div>
+    
+    <script>
+        async function checkPlagiarism() {
+            const textInput = document.getElementById('textInput').value.trim();
+            const resultsDiv = document.getElementById('results');
+            const checkBtn = document.getElementById('checkBtn');
+            
+            if (!textInput) {
+                alert('텍스트를 입력해주세요');
+                return;
+            }
+            
+            if (textInput.length < 10) {
+                alert('최소 10자 이상 입력해주세요');
+                return;
+            }
+            
+            // 결과 영역 초기화 및 로딩 표시
+            resultsDiv.innerHTML = `
+                <div class="results">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>표절 검사 진행 중...</p>
+                    </div>
+                </div>
+            `;
+            
+            checkBtn.disabled = true;
+            checkBtn.textContent = '⏳ 검사 중...';
+            
+            try {
+                const response = await fetch('http://localhost:8006/api/check/text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: textInput
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // 결과 표시
+                displayResults(result);
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="results">
+                        <div class="status error">
+                            <p class="status-text">❌ 오류: ${error.message}</p>
+                        </div>
+                    </div>
+                `;
+            } finally {
+                checkBtn.disabled = false;
+                checkBtn.textContent = '🔍 표절 검사 시작';
+            }
+        }
+        
+        function displayResults(result) {
+            const resultsDiv = document.getElementById('results');
+            
+            let html = `<div class="results">`;
+            
+            // 유사도 점수
+            const similarity = result.similarity_score || 0;
+            const statusColor = similarity < 15 ? 'success' : similarity < 40 ? 'warning' : 'error';
+            const statusText = similarity < 15 ? '✅ 안전' : similarity < 40 ? '⚠️ 주의' : '🚨 위험';
+            
+            html += `
+                <div class="status ${statusColor}">
+                    <p class="status-text">
+                        <strong>전체 유사도:</strong> ${similarity.toFixed(1)}% - ${statusText}
+                    </p>
+                </div>
+            `;
+            
+            // 매치 정보
+            if (result.matches && result.matches.length > 0) {
+                html += `<h3 style="margin: 20px 0 15px; font-size: 16px; color: #333;">발견된 표절 부분 (${result.matches.length}개)</h3>`;
+                
+                result.matches.forEach((match, index) => {
+                    const matchSimilarity = match.similarity_score || 0;
+                    html += `
+                        <div class="match">
+                            <div class="match-source">${index + 1}. ${match.source_title || '알 수 없음'}</div>
+                            <span class="match-similarity">${matchSimilarity.toFixed(1)}% 유사</span>
+                            <div class="match-text">"${(match.matched_text || '').substring(0, 100)}..."</div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += `
+                    <div class="status success">
+                        <p class="status-text">✅ 표절된 부분을 찾지 못했습니다</p>
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
+            resultsDiv.innerHTML = html;
+        }
+        
+        // 페이지 로드 시 백엔드 상태 확인
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('http://localhost:8006/api/database/stats');
+                if (!response.ok) throw new Error('서버 연결 실패');
+                
+                const stats = await response.json();
+                const statusDiv = document.getElementById('status');
+                statusDiv.innerHTML = `
+                    <p class="status-text">
+                        ✅ 백엔드 서버 정상 작동 | 데이터베이스: ${stats.total_documents}개 문서
+                    </p>
+                `;
+                statusDiv.className = 'status success';
+            } catch (error) {
+                const statusDiv = document.getElementById('status');
+                statusDiv.innerHTML = `
+                    <p class="status-text">
+                        ❌ 백엔드 서버 연결 실패 - http://localhost:8006이 실행 중인지 확인하세요
+                    </p>
+                `;
+                statusDiv.className = 'status error';
+            }
+        });
+        
+        // Enter 키로 검사 실행
+        document.getElementById('textInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                checkPlagiarism();
+            }
+        });
+    </script>
+</body>
+</html>

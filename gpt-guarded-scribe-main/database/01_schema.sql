@@ -89,8 +89,8 @@ CREATE INDEX IF NOT EXISTS idx_plagiarism_matches_source_title ON plagiarism_mat
 CREATE INDEX IF NOT EXISTS idx_document_sources_content_hash ON document_sources(content_hash);
 CREATE INDEX IF NOT EXISTS idx_document_sources_source_type ON document_sources(source_type);
 CREATE INDEX IF NOT EXISTS idx_document_sources_is_active ON document_sources(is_active);
-CREATE INDEX IF NOT EXISTS idx_document_sources_content_search ON document_sources USING GIN(to_tsvector('korean', content));
-CREATE INDEX IF NOT EXISTS idx_document_sources_title_search ON document_sources USING GIN(to_tsvector('korean', title));
+CREATE INDEX IF NOT EXISTS idx_document_sources_content_search ON document_sources USING GIN(to_tsvector('simple', content));
+CREATE INDEX IF NOT EXISTS idx_document_sources_title_search ON document_sources USING GIN(to_tsvector('simple', title));
 
 CREATE INDEX IF NOT EXISTS idx_user_sessions_ip ON user_sessions(ip_address);
 CREATE INDEX IF NOT EXISTS idx_user_sessions_last_activity ON user_sessions(last_activity DESC);
@@ -101,7 +101,7 @@ CREATE INDEX IF NOT EXISTS idx_ngrams_size ON ngrams(ngram_size);
 
 -- 전문 검색 인덱스
 CREATE INDEX IF NOT EXISTS idx_full_text_search ON document_sources USING GIN(
-    to_tsvector('korean', title || ' ' || content)
+    to_tsvector('simple', title || ' ' || content)
 );
 
 -- 트리거 함수들
@@ -123,13 +123,13 @@ CREATE TRIGGER update_document_sources_updated_at
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- 파티션 테이블 (대량 데이터 처리용)
-CREATE TABLE IF NOT EXISTS plagiarism_checks_partitioned (
-    LIKE plagiarism_checks INCLUDING ALL
-) PARTITION BY RANGE (created_at);
+-- CREATE TABLE IF NOT EXISTS plagiarism_checks_partitioned (
+--     LIKE plagiarism_checks INCLUDING ALL
+-- ) PARTITION BY RANGE (created_at);
 
 -- 월별 파티션 예시
-CREATE TABLE IF NOT EXISTS plagiarism_checks_2024_01 PARTITION OF plagiarism_checks_partitioned
-    FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
+-- CREATE TABLE IF NOT EXISTS plagiarism_checks_2024_01 PARTITION OF plagiarism_checks_partitioned
+--     FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
 
 -- 통계 테이블
 CREATE TABLE IF NOT EXISTS statistics (

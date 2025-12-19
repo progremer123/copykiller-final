@@ -2,10 +2,10 @@ import os
 from typing import List
 
 class Settings:
-    # 데이터베이스 설정
+    # 데이터베이스 설정 (개발용 SQLite)
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL", 
-        "postgresql://postgres:password@localhost:5432/plagiarism_db"
+        "sqlite:///./plagiarism.db"
     )
     
     # Redis 설정 (캐싱용)
@@ -19,9 +19,13 @@ class Settings:
     # CORS 설정
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:3000",
+        "http://localhost:3001",
         "http://localhost:5173",
+        "http://localhost:8080",
         "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
         "http://127.0.0.1:5173",
+        "http://127.0.0.1:8080",
     ]
     
     # 보안 설정
@@ -45,9 +49,9 @@ class Settings:
     SIMILARITY_THRESHOLD: float = 0.3
     HIGH_SIMILARITY_THRESHOLD: float = 0.7
     
-    # 백그라운드 작업 설정
-    CELERY_BROKER_URL: str = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379")
-    CELERY_RESULT_BACKEND: str = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379")
+    # 백그라운드 작업 설정 (개발용 메모리 브로커)
+    CELERY_BROKER_URL: str = os.getenv("CELERY_BROKER_URL", "memory://")
+    CELERY_RESULT_BACKEND: str = os.getenv("CELERY_RESULT_BACKEND", "cache+memory://")
     
     # 로깅 설정
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
