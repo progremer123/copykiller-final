@@ -21,10 +21,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS 설정
+# main.py 파일 수정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=["*"],  # 모든 곳에서 오는 접속을 허용함
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -50,4 +50,5 @@ async def health_check():
 
 if __name__ == "__main__":
     print("[*] FastAPI 서버 시작 중...")
-    uvicorn.run(app, host="127.0.0.1", port=8006)
+    # 포트를 8000으로 변경하거나, 터미널 명령어를 8006으로 통일해야 합니다.
+    uvicorn.run(app, host="127.0.0.1", port=8000)

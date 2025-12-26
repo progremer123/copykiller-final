@@ -37,10 +37,13 @@ const PlagiarismChecker = () => {
   const [dbStats, setDbStats] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
 
+  // 모든 API의 베이스 URL을 8006으로 통일
+  const API_BASE_URL = 'http://localhost:8006';
+
   // 데이터베이스 상태 확인
   const fetchDbStats = async () => {
     try {
-      const response = await axios.get('http://localhost:8006/api/database/stats');
+      const response = await axios.get(`${API_BASE_URL}/api/database/stats`);
       setDbStats(response.data);
     } catch (error) {
       console.error('DB 상태 확인 오류:', error);
@@ -79,10 +82,10 @@ const PlagiarismChecker = () => {
     if (!token || !user) return;
 
     try {
-      await axios.post('http://localhost:8006/api/auth/questions', {
+      await axios.post(`${API_BASE_URL}/api/auth/questions`, {
         question_text: questionText,
         question_type: 'plagiarism_check',
-        original_text: questionText.substring(0, 1000), // 처음 1000자만 저장
+        original_text: questionText.substring(0, 1000),
         similarity_score: result.similarity,
         match_count: result.matches?.length || 0,
         processing_time: result.processing_time
@@ -105,7 +108,7 @@ const PlagiarismChecker = () => {
 
   const handleTextSubmit = async (text: string) => {
     const newCheck: CheckResult = {
-      id: Date.now().toString(), // 임시 ID로 우선 생성
+      id: Date.now().toString(),
       originalText: text,
       similarity: 0,
       matches: [],
@@ -116,20 +119,20 @@ const PlagiarismChecker = () => {
     setActiveTab('results');
 
     try {
-      console.log('🚀 API 요청 시작:', { text: text.substring(0, 50) + '...' });
+      console.log('🚀 API 요청 시작 (8006):', { text: text.substring(0, 50) + '...' });
       const response = await axios.post(
-        'http://localhost:8006/api/check/text',
+        `${API_BASE_URL}/api/check/text`,
         { text },
         { 
           headers: { 'Content-Type': 'application/json' },
-          timeout: 30000 // 30초 타임아웃
+          timeout: 30000 
         }
       );
       console.log('✅ API 응답 받음:', response.data);
 
       const actualResult = response.data;
 
-      const updatedResult = {
+      const updatedResult: CheckResult = {
         ...newCheck,
         id: actualResult.id,
         status: actualResult.status,
@@ -147,7 +150,6 @@ const PlagiarismChecker = () => {
         result.id === newCheck.id ? updatedResult : result
       ));
 
-      // 로그인 사용자라면 질문 기록 저장
       await saveUserQuestion(text, {
         similarity: actualResult.similarity_score,
         matches: actualResult.matches,
@@ -155,11 +157,6 @@ const PlagiarismChecker = () => {
       });
     } catch (error) {
       console.error("텍스트 검사 API 오류:", error);
-      if (axios.isAxiosError(error)) {
-        console.error("응답 데이터:", error.response?.data);
-        console.error("응답 상태:", error.response?.status);
-        console.error("요청 설정:", error.config);
-      }
       setResults(prev => prev.map(result => 
         result.id === newCheck.id ? { 
           ...result, 
@@ -170,7 +167,6 @@ const PlagiarismChecker = () => {
     }
   };
 
-  // 파일 업로드 핸들러도 실제 API를 호출하도록 수정합니다.
   const handleFileSubmit = async (file: File) => {
     const newCheck: CheckResult = {
       id: Date.now().toString(),
@@ -187,13 +183,13 @@ const PlagiarismChecker = () => {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('/api/check/file', formData, {
+      const response = await axios.post(`${API_BASE_URL}/api/check/file`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
       const actualResult = response.data;
       
-      const updatedFileResult = {
+      const updatedFileResult: CheckResult = {
         ...newCheck,
         id: actualResult.id,
         originalText: actualResult.original_text,
@@ -212,7 +208,6 @@ const PlagiarismChecker = () => {
         result.id === newCheck.id ? updatedFileResult : result
       ));
 
-      // 로그인 사용자라면 질문 기록 저장
       await saveUserQuestion(`파일 업로드: ${file.name}`, {
         similarity: actualResult.similarity_score,
         matches: actualResult.matches,
@@ -220,10 +215,6 @@ const PlagiarismChecker = () => {
       });
     } catch (error) {
       console.error("파일 업로드 API 오류:", error);
-      if (axios.isAxiosError(error)) {
-        console.error("응답 데이터:", error.response?.data);
-        console.error("응답 상태:", error.response?.status);
-      }
       setResults(prev => prev.map(result => 
         result.id === newCheck.id ? { 
           ...result, 
@@ -299,9 +290,6 @@ const PlagiarismChecker = () => {
               </Badge>
             )}
           </div>
-          <p className="text-sm text-gray-600">
-            단순한 비교를 넘어 AI가 제공하는 스마트한 분석과 개선 제안
-          </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -335,8 +323,6 @@ const PlagiarismChecker = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <TextInput onTextSubmit={handleTextSubmit} />
-                
-                {/* API 테스트 버튼 */}
                 <div className="border-t pt-4">
                   <p className="text-sm text-gray-600 mb-2">빠른 테스트:</p>
                   <Button 
@@ -360,8 +346,6 @@ const PlagiarismChecker = () => {
                   text={selectedResult.originalText} 
                   matches={selectedResult.matches} 
                 />
-                
-                {/* AI 표절 회피 시스템 */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -381,7 +365,6 @@ const PlagiarismChecker = () => {
                       }))}
                       checkId={selectedResult.id}
                       onFixApplied={(fixedText) => {
-                        // 수정된 텍스트로 새로운 검사 결과 생성 (선택적)
                         console.log('AI 수정된 텍스트:', fixedText);
                       }}
                     />

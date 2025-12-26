@@ -1,0 +1,16 @@
+[Unit]
+Description=Plagiarism Backend (Uvicorn)
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/copykiller-final/gpt-guarded-scribe-main/backend
+Environment=DATABASE_URL=postgresql://postgres:password@localhost:5432/plagiarism_db
+Environment=REDIS_URL=redis://localhost:6379
+ExecStart=/usr/local/bin/uvicorn main:app --host 0.0.0.0 --port 8000 --workers 1
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

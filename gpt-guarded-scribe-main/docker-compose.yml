@@ -57,6 +57,8 @@ services:
     networks:
       - plagiarism_network
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   celery_worker:
     build:
