@@ -19,7 +19,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # 포트 노출
-EXPOSE 8000
+ENV PORT 8080
+EXPOSE 8080
 
 # 애플리케이션 시작
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# EXPOSE 8006  <-- 이 줄은 지우거나 주석 처리해도 됩니다. (Cloud Run에선 필수가 아님)
+
+# CMD 부분을 아래와 같이 수정 (8006 대신 8000이나 $PORT를 자동으로 받게 설정)
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port 8080"]

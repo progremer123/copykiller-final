@@ -38,7 +38,7 @@ const PlagiarismChecker = () => {
   const [user, setUser] = useState<any>(null);
 
   // 모든 API의 베이스 URL을 8006으로 통일
-  const API_BASE_URL = 'http://localhost:8006';
+  const API_BASE_URL = 'https://backend-service-804565319723.asia-northeast3.run.app';
 
   // 데이터베이스 상태 확인
   const fetchDbStats = async () => {
